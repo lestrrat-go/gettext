@@ -12,20 +12,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Parser struct {
-	strict bool
-}
-
-type Option interface {
-	Name() string
-	Value() interface{}
-}
-
-type option struct {
-	name string
-	value interface{}
-}
-
 func (o option) Name() string {
 	return o.name
 }
@@ -53,17 +39,6 @@ func NewParser(options ...Option) *Parser {
 	return &Parser{
 		strict: strict,
 	}
-}
-
-type parseCtx struct {
-	context.Context
-	buf            []byte
-	po             *Po
-	pos            int
-	rawHeaders     string
-	strict         bool
-	curTranslation *translation
-	curContext     string
 }
 
 func (p *Parser) ParseFile(f string) (*Po, error) {
