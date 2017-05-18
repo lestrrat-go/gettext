@@ -14,7 +14,7 @@ multiple languages at the same time by working with this object.
 
 Example:
 
-    import "github.com/leonelquinteros/gettext"
+    import "github.com/lestrrat/go-gettext"
 
     func main() {
         // Create Locale with library path and language code

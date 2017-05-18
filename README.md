@@ -247,10 +247,7 @@ msgstr[1] "This one is the plural: %s"
 ```
 
 
-# Contribute 
+# ACKNOWLEDGEMENTS
 
-- Please, contribute.
-- Use the package on your projects.
-- Report issues on Github. 
-- Send pull requests for bugfixes and improvements.
-- Send proposals on Github issues.
+* Based on https://github.com/leonelquinteros/gotext
+
