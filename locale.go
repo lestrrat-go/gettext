@@ -4,49 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"sync"
 )
-
-/*
-Locale wraps the entire i18n collection for a single language (locale)
-It's used by the package functions, but it can also be used independently to handle
-multiple languages at the same time by working with this object.
-
-Example:
-
-    import "github.com/lestrrat/go-gettext"
-
-    func main() {
-        // Create Locale with library path and language code
-        l := gettext.NewLocale("/path/to/i18n/dir", "en_US")
-
-        // Load domain '/path/to/i18n/dir/en_US/LC_MESSAGES/default.po'
-        l.AddDomain("default")
-
-        // Translate text from default domain
-        println(l.Get("Translate this"))
-
-        // Load different domain ('/path/to/i18n/dir/en_US/LC_MESSAGES/extras.po')
-        l.AddDomain("extras")
-
-        // Translate text from domain
-        println(l.GetD("extras", "Translate this"))
-    }
-
-*/
-type Locale struct {
-	// Path to locale files.
-	path string
-
-	// Language for this Locale
-	lang string
-
-	// List of available domains for this locale.
-	domains map[string]*Po
-
-	// Sync Mutex
-	sync.RWMutex
-}
 
 // NewLocale creates and initializes a new Locale object for a given language.
 // It receives a path for the i18n files directory (p) and a language code to use (l).

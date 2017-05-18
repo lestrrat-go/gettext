@@ -2,13 +2,9 @@ package gettext
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/mattn/anko/vm"
 )
-
-// one translation object may contain multiple translations
-type textlist []string
 
 func (l textlist) Len() int {
 	return len(l)
@@ -29,12 +25,6 @@ func (l textlist) Get(idx int) (string, bool) {
 		return "", false
 	}
 	return l[idx], true
-}
-
-type translation struct {
-	id       string
-	PluralID string
-	Trs      textlist
 }
 
 func newTranslation() *translation {
@@ -62,48 +52,6 @@ func (t *translation) getN(n int) (s string) {
 
 	// Return unstranlated plural by default
 	return t.PluralID
-}
-
-/*
-Po stores content required for translation, and does the grunt work of
-producing localized strings.
-
-And it's safe for concurrent use by multiple goroutines by using the sync package for locking.
-
-Example:
-
-    import "github.com/lestrrat/go-gettext"
-
-    func main() {
-				p := gettext.NewParser()
-        po, err := p.ParseFile("/path/to/po/file/Translations.po")
-				if err != nil {
-					fmt.Printf("%s\n", err)
-					return
-				}
-
-        // Get translation
-        println(po.Get("Translate this"))
-    }
-
-*/
-type Po struct {
-	// Language header
-	Language string
-
-	// Plural-Forms header
-	PluralForms string
-
-	// Parsed Plural-Forms header values
-	nplurals int
-	plural   string
-
-	// Storage
-	Translations map[string]*translation
-	Contexts     map[string]map[string]*translation
-
-	// Sync Mutex
-	sync.RWMutex
 }
 
 // pluralForm calculates the plural form index corresponding to n.
