@@ -2,53 +2,85 @@ package gettext
 
 import (
 	"fmt"
-	"os"
 	"path"
+
+	"github.com/pkg/errors"
 )
+
+func WithSource(s Source) Option {
+	return &option{
+		name: "source",
+		value: s,
+	}
+}
 
 // NewLocale creates and initializes a new Locale object for a given language.
 // It receives a path for the i18n files directory (p) and a language code to use (l).
-func NewLocale(p, l string) *Locale {
+func NewLocale(p, l string, options ...Option) *Locale {
+	var src Source = FileSystemSource{}
+	for _, o := range options {
+		switch o.Name() {
+		case "source":
+			src = o.Value().(Source)
+		}
+	}
 	return &Locale{
 		path:    p,
 		lang:    l,
 		domains: make(map[string]*Po),
+		src:     src,
 	}
 }
 
-func (l *Locale) findPO(dom string) string {
+func (l *Locale) findPO(dom string) ([]byte, error) {
+	var data []byte
+	var err error
+
 	filename := path.Join(l.path, l.lang, "LC_MESSAGES", dom+".po")
-	if _, err := os.Stat(filename); err == nil {
-		return filename
+	data, err = l.src.ReadFile(filename)
+	if err == nil {
+		return data, nil
 	}
 
 	if len(l.lang) > 2 {
 		filename = path.Join(l.path, l.lang[:2], "LC_MESSAGES", dom+".po")
-		if _, err := os.Stat(filename); err == nil {
-			return filename
+		data, err = l.src.ReadFile(filename)
+		if err == nil {
+			return data, nil
 		}
 	}
 
 	filename = path.Join(l.path, l.lang, dom+".po")
-	if _, err := os.Stat(filename); err == nil {
-		return filename
+	data, err = l.src.ReadFile(filename)
+	if err == nil {
+		return data, nil
 	}
 
 	if len(l.lang) > 2 {
 		filename = path.Join(l.path, l.lang[:2], dom+".po")
+		data, err = l.src.ReadFile(filename)
+		if err == nil {
+			return data, nil
+		}
 	}
 
-	return filename
+	return nil, errors.Errorf(`locale: could not find file for domain %s`, dom)
 }
 
 // AddDomain creates a new domain for a given locale object and initializes the Po object.
 // If the domain exists, it gets reloaded.
-func (l *Locale) AddDomain(dom string) {
+func (l *Locale) AddDomain(dom string) error {
 	// Parse file.
 	p := NewParser()
 
-	// XXXX Aaaaargh, check errors!
-	po, _ := p.ParseFile(l.findPO(dom))
+	data, err := l.findPO(dom)
+	if err != nil {
+		return errors.Wrap(err, `locale: failed to find domain file`)
+	}
+	po, err := p.Parse(data)
+	if err != nil {
+		return errors.Wrap(err, `locale: failed to parse file`)
+	}
 
 	// Save new domain
 	l.Lock()
@@ -58,6 +90,8 @@ func (l *Locale) AddDomain(dom string) {
 		l.domains = make(map[string]*Po)
 	}
 	l.domains[dom] = po
+
+	return nil
 }
 
 // Get uses a domain "default" to return the corresponding translation of a given string.
