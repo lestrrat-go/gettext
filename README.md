@@ -123,26 +123,6 @@ This is a normal Go compiler behavior.
 
 # Usage examples
 
-## Using package for single language/domain settings
-
-For quick/simple translations you can use the package level functions directly.
-
-```go
-import "github.com/lestrrat/go-gettext"
-
-func main() {
-    // Configure package
-    gettext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
-    
-    // Translate text from default domain
-    println(gettext.Get("My text on 'domain-name' domain"))
-    
-    // Translate text from a different domain without reconfigure
-    println(gettext.GetD("domain2", "Another text on a different domain"))
-}
-
-```
-
 ## Using dynamic variables on translations
 
 All translation strings support dynamic variables to be inserted without translate. 
@@ -152,8 +132,8 @@ Use the fmt.Printf syntax (from Go's "fmt" package) to specify how to print the 
 import "github.com/lestrrat/go-gettext"
 
 func main() {
-    // Configure package
-    gettext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
+    l := gettext.NewLocale("/path/to/locales/root/dir")
+    l.AddDomain("domain-name")
     
     // Set variables
     name := "John"
@@ -164,11 +144,7 @@ func main() {
 
 ```
 
-
 ## Using Locale object
-
-When having multiple languages/domains/libraries at the same time, you can create Locale objects for each variation 
-so you can handle each settings on their own.
 
 ```go
 import "github.com/lestrrat/go-gettext"
@@ -191,7 +167,7 @@ func main() {
 }
 ```
 
-This is also helpful for using inside templates (from the "text/template" package), where you can pass the Locale object to the template.
+You may pass the locale object to `text/template` (or the like) to localize your templates.
 If you set the Locale object as "Loc" in the template, then the template code would look like: 
 
 ```
