@@ -7,14 +7,28 @@ import (
 	"github.com/pkg/errors"
 )
 
+func WithSource(s Source) Option {
+	return &option{
+		name: "source",
+		value: s,
+	}
+}
+
 // NewLocale creates and initializes a new Locale object for a given language.
 // It receives a path for the i18n files directory (p) and a language code to use (l).
-func NewLocale(p, l string) *Locale {
+func NewLocale(p, l string, options ...Option) *Locale {
+	var src Source = FileSystemSource{}
+	for _, o := range options {
+		switch o.Name() {
+		case "source":
+			src = o.Value().(Source)
+		}
+	}
 	return &Locale{
 		path:    p,
 		lang:    l,
 		domains: make(map[string]*Po),
-		src:     FileSystemSource{},
+		src:     src,
 	}
 }
 
