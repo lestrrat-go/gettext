@@ -2,7 +2,7 @@ package gettext
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -65,7 +65,7 @@ msgstr "More translation"
     `
 
 	// Write PO content to file
-	filename := path.Clean(os.TempDir() + string(os.PathSeparator) + "default.po")
+	filename := filepath.Clean(os.TempDir() + string(os.PathSeparator) + "default.po")
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -81,7 +81,7 @@ msgstr "More translation"
 	p := NewParser()
 
 	// Try to parse a directory
-	po, err := p.ParseFile(path.Clean(os.TempDir()))
+	po, err := p.ParseFile(filepath.Clean(os.TempDir()))
 	if err == nil {
 		t.Errorf("failed to parse")
 		return
@@ -138,10 +138,10 @@ msgstr "More translation"
 	// But that's just not right. If you couldn't parse it, it should not
 	// even be registered.
 	/*
-	tr = po.Get("This one has invalid syntax translations")
-	if tr != "" {
-		t.Errorf("Expected '' but got '%s'", tr)
-	}
+		tr = po.Get("This one has invalid syntax translations")
+		if tr != "" {
+			t.Errorf("Expected '' but got '%s'", tr)
+		}
 	*/
 	// here's my take on the above test case
 	tr = po.Get("This one has invalid syntax translations")

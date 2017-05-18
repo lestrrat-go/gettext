@@ -1,8 +1,9 @@
 package gettext
 
 import (
+	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -58,15 +59,21 @@ msgstr "More translation"
 
     `
 
-	// Create Locales directory with simplified language code
-	dirname := path.Join("/tmp", "en", "LC_MESSAGES")
-	err := os.MkdirAll(dirname, os.ModePerm)
+	tmpdir, err := ioutil.TempDir("", "go-gettext-")
 	if err != nil {
+		t.Errorf("failed to create temporary directory: %s", err)
+		return
+	}
+	defer os.RemoveAll(tmpdir)
+
+	// Create Locales directory with simplified language code
+	dirname := filepath.Join(tmpdir, "en", "LC_MESSAGES")
+	if err := os.MkdirAll(dirname, os.ModePerm); err != nil {
 		t.Fatalf("Can't create test directory: %s", err.Error())
 	}
 
 	// Write PO content to file
-	filename := path.Join(dirname, "my_domain.po")
+	filename := filepath.Join(dirname, "my_domain.po")
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -80,7 +87,7 @@ msgstr "More translation"
 	}
 
 	// Create Locale with full language code
-	l := NewLocale("/tmp", "en_US")
+	l := NewLocale(tmpdir, "en_US")
 
 	// Force nil domain storage
 	l.domains = nil
@@ -178,15 +185,21 @@ msgstr "More translation"
 
     `
 
-	// Create Locales directory with simplified language code
-	dirname := path.Join("/tmp", "en", "LC_MESSAGES")
-	err := os.MkdirAll(dirname, os.ModePerm)
+	tmpdir, err := ioutil.TempDir("", "go-gettext-")
 	if err != nil {
+		t.Errorf("failed to create temporary directory: %s", err)
+		return
+	}
+	defer os.RemoveAll(tmpdir)
+
+	// Create Locales directory with simplified language code
+	dirname := filepath.Join(tmpdir, "en", "LC_MESSAGES")
+	if err := os.MkdirAll(dirname, os.ModePerm); err != nil {
 		t.Fatalf("Can't create test directory: %s", err.Error())
 	}
 
 	// Write PO content to file
-	filename := path.Join(dirname, "my_domain.po")
+	filename := filepath.Join(dirname, "my_domain.po")
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -200,7 +213,7 @@ msgstr "More translation"
 	}
 
 	// Create Locale with full language code
-	l := NewLocale("/tmp", "en_US")
+	l := NewLocale(tmpdir, "en_US")
 
 	// Force nil domain storage
 	l.domains = nil
@@ -261,15 +274,21 @@ msgstr[2] "And this is the second plural form: %s"
 
     `
 
-	// Create Locales directory with simplified language code
-	dirname := path.Join("/tmp", "es")
-	err := os.MkdirAll(dirname, os.ModePerm)
+	tmpdir, err := ioutil.TempDir("", "go-gettext-")
 	if err != nil {
+		t.Errorf("failed to create temporary directory: %s", err)
+		return
+	}
+	defer os.RemoveAll(tmpdir)
+
+	// Create Locales directory with simplified language code
+	dirname := filepath.Join(tmpdir, "es")
+	if err := os.MkdirAll(dirname, os.ModePerm); err != nil {
 		t.Fatalf("Can't create test directory: %s", err.Error())
 	}
 
 	// Write PO content to file
-	filename := path.Join(dirname, "race.po")
+	filename := filepath.Join(dirname, "race.po")
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -283,7 +302,7 @@ msgstr[2] "And this is the second plural form: %s"
 	}
 
 	// Create Locale with full language code
-	l := NewLocale("/tmp", "es")
+	l := NewLocale(tmpdir, "es")
 
 	// Init sync channels
 	ac := make(chan bool)
