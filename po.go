@@ -65,20 +65,22 @@ func (t *translation) getN(n int) (s string) {
 }
 
 /*
-Po parses the content of any PO file and provides all the translation functions needed.
-It's the base object used by all package methods.
+Po stores content required for translation, and does the grunt work of
+producing localized strings.
+
 And it's safe for concurrent use by multiple goroutines by using the sync package for locking.
 
 Example:
 
-    import "github.com/leonelquinteros/gettext"
+    import "github.com/lestrrat/go-gettext"
 
     func main() {
-        // Create po object
-        po := new(gettext.Po)
-
-        // Parse .po file
-        po.ParseFile("/path/to/po/file/Translations.po")
+				p := gettext.NewParser()
+        po, err := p.ParseFile("/path/to/po/file/Translations.po")
+				if err != nil {
+					fmt.Printf("%s\n", err)
+					return
+				}
 
         // Get translation
         println(po.Get("Translate this"))
