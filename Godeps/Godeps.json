@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/leonelquinteros/gotext",
+	"ImportPath": "github.com/lestrrat/go-gettext",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [

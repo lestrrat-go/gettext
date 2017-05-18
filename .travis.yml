@@ -1,7 +1,5 @@
 language: go
 script: go test -v -race ./...
-
 go:
-  - 1.5
-  - 1.6
+  - 1.8.x
   - tip

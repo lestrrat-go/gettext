@@ -1,12 +1,12 @@
-[![GoDoc](https://godoc.org/github.com/leonelquinteros/gotext?status.svg)](https://godoc.org/github.com/leonelquinteros/gotext)
-[![Build Status](https://travis-ci.org/leonelquinteros/gotext.svg?branch=master)](https://travis-ci.org/leonelquinteros/gotext)
-[![Go Report Card](https://goreportcard.com/badge/github.com/leonelquinteros/gotext)](https://goreportcard.com/report/github.com/leonelquinteros/gotext)
+[![GoDoc](https://godoc.org/github.com/lestrrat/go-gettext?status.svg)](https://godoc.org/github.com/lestrrat/go-gettext)
+[![Build Status](https://travis-ci.org/lestrrat/go-gettext.svg?branch=master)](https://travis-ci.org/lestrrat/go-gettext)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lestrrat/go-gettext)](https://goreportcard.com/report/github.com/lestrrat/go-gettext)
 
 # Gotext
 
 [GNU gettext utilities](https://www.gnu.org/software/gettext) for Go. 
 
-Version: [v1.1.1](https://github.com/leonelquinteros/gotext/releases/tag/v1.1.1)
+Version: [v1.1.1](https://github.com/lestrrat/go-gettext/releases/tag/v1.1.1)
 
 
 # Features
@@ -19,7 +19,7 @@ Version: [v1.1.1](https://github.com/leonelquinteros/gotext/releases/tag/v1.1.1)
   - Support for [message contexts](https://www.gnu.org/software/gettext/manual/html_node/Contexts.html).
 - Thread-safe: This package is safe for concurrent use across multiple goroutines. 
 - It works with UTF-8 encoding as it's the default for Go language.
-- Unit tests available. See coverage: https://gocover.io/github.com/leonelquinteros/gotext
+- Unit tests available. See coverage: https://gocover.io/github.com/lestrrat/go-gettext
 - Language codes are automatically simplified from the form `en_UK` to `en` if the first isn't available.
 - Ready to use inside Go templates.
 
@@ -31,45 +31,18 @@ Version: [v1.1.1](https://github.com/leonelquinteros/gotext/releases/tag/v1.1.1)
 
 # Documentation
 
-Refer to the Godoc package documentation at (https://godoc.org/github.com/leonelquinteros/gotext)
+Refer to the Godoc package documentation at (https://godoc.org/github.com/lestrrat/go-gettext)
 
 
 # Installation 
 
 ```
-go get github.com/leonelquinteros/gotext
+go get github.com/lestrrat/go-gettext
 ```
 
 - There are no requirements or dependencies to use this package. 
 - No need to install GNU gettext utilities (unless specific needs of CLI tools).
 - No need for environment variables. Some naming conventions are applied but not needed.  
-
-
-#### Version vendoring
-
-Stable releases use [semantic versioning](http://semver.org/spec/v2.0.0.html) tagging on this repository.
-
-You can rely on this to use your preferred vendoring tool or to manually retrieve the corresponding release tag from the GitHub repository.
-
-
-##### Vendoring with [gopkg.in](http://labix.org/gopkg.in)
-
-[http://gopkg.in/leonelquinteros/gotext.v1](http://gopkg.in/leonelquinteros/gotext.v1)
-
-To get the latest v1 package stable release, execute:
-
-```
-go get gopkg.in/leonelquinteros/gotext.v1
-```
-
-To import this package, add the following line to your code:
-
-```go
-import "gopkg.in/leonelquinteros/gotext.v1"
-```
-
-Refer to it as gotext.
-
 
 # Locales directories structure
 
@@ -133,10 +106,10 @@ Each implementation of this package can declare this helper functions inside the
 ```go
 package main
 
-import "github.com/leonelquinteros/gotext"
+import "github.com/lestrrat/go-gettext"
 
 func _(str string, vars ...interface{}) string {
-    return gotext.Get(str, vars...)
+    return gettext.Get(str, vars...)
 }
 
 ``` 
@@ -155,17 +128,17 @@ This is a normal Go compiler behavior.
 For quick/simple translations you can use the package level functions directly.
 
 ```go
-import "github.com/leonelquinteros/gotext"
+import "github.com/lestrrat/go-gettext"
 
 func main() {
     // Configure package
-    gotext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
+    gettext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
     
     // Translate text from default domain
-    println(gotext.Get("My text on 'domain-name' domain"))
+    println(gettext.Get("My text on 'domain-name' domain"))
     
     // Translate text from a different domain without reconfigure
-    println(gotext.GetD("domain2", "Another text on a different domain"))
+    println(gettext.GetD("domain2", "Another text on a different domain"))
 }
 
 ```
@@ -176,17 +149,17 @@ All translation strings support dynamic variables to be inserted without transla
 Use the fmt.Printf syntax (from Go's "fmt" package) to specify how to print the non-translated variable inside the translation string. 
 
 ```go
-import "github.com/leonelquinteros/gotext"
+import "github.com/lestrrat/go-gettext"
 
 func main() {
     // Configure package
-    gotext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
+    gettext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
     
     // Set variables
     name := "John"
     
     // Translate text with variables
-    println(gotext.Get("Hi, my name is %s", name))
+    println(gettext.Get("Hi, my name is %s", name))
 }
 
 ```
@@ -198,11 +171,11 @@ When having multiple languages/domains/libraries at the same time, you can creat
 so you can handle each settings on their own.
 
 ```go
-import "github.com/leonelquinteros/gotext"
+import "github.com/lestrrat/go-gettext"
 
 func main() {
     // Create Locale with library path and language code
-    l := gotext.NewLocale("/path/to/locales/root/dir", "es_UY")
+    l := gettext.NewLocale("/path/to/locales/root/dir", "es_UY")
     
     // Load domain '/path/to/locales/root/dir/es_UY/default.po'
     l.AddDomain("default")
@@ -232,7 +205,7 @@ For when you need to work with PO files and strings,
 you can directly use the Po object to parse it and access the translations in there in the same way.
 
 ```go
-import "github.com/leonelquinteros/gotext"
+import "github.com/lestrrat/go-gettext"
 
 func main() {
     // Set PO content
@@ -265,7 +238,7 @@ as defined in (https://www.gnu.org/savannah-checkouts/gnu/gettext/manual/html_no
 Plural formulas are parsed and evaluated using [Anko](https://github.com/mattn/anko)
 
 ```go
-import "github.com/leonelquinteros/gotext"
+import "github.com/lestrrat/go-gettext"
 
 func main() {
     // Set PO content

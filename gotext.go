@@ -1,23 +1,23 @@
 /*
-Package gotext implements GNU gettext utilities.
+Package gettext implements GNU gettext utilities.
 
 For quick/simple translations you can use the package level functions directly.
 
-    import "github.com/leonelquinteros/gotext"
+    import "github.com/lestrrat/go-gettext"
 
     func main() {
         // Configure package
-        gotext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
+        gettext.Configure("/path/to/locales/root/dir", "en_UK", "domain-name")
 
         // Translate text from default domain
-        println(gotext.Get("My text on 'domain-name' domain"))
+        println(gettext.Get("My text on 'domain-name' domain"))
 
         // Translate text from a different domain without reconfigure
-        println(gotext.GetD("domain2", "Another text on a different domain"))
+        println(gettext.GetD("domain2", "Another text on a different domain"))
     }
 
 */
-package gotext
+package gettext
 
 // Global environment variables
 var (
