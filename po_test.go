@@ -196,13 +196,13 @@ msgstr "Translated example"
 	po, _ := NewParser().Parse([]byte(str))
 
 	// Check headers expected
-	if po.Language != "en" {
-		t.Errorf("Expected 'Language: en' but got '%s'", po.Language)
+	if po.language != "en" {
+		t.Errorf("Expected 'Language: en' but got '%s'", po.language)
 	}
 
 	// Check headers expected
-	if po.PluralForms != "nplurals=2; plural=(n != 1);" {
-		t.Errorf("Expected 'Plural-Forms: nplurals=2; plural=(n != 1);' but got '%s'", po.PluralForms)
+	if po.pluralForms != "nplurals=2; plural=(n != 1);" {
+		t.Errorf("Expected 'Plural-Forms: nplurals=2; plural=(n != 1);' but got '%s'", po.pluralForms)
 	}
 }
 
