@@ -28,7 +28,7 @@ func (l textlist) Get(idx int) (string, bool) {
 }
 
 func newTranslation() *translation {
-	tr := new(translation)
+	tr := &translation{}
 	tr.Trs = textlist(nil)
 
 	return tr

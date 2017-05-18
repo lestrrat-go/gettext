@@ -49,6 +49,10 @@ func (p *Parser) ParseFile(f string) (*Po, error) {
 	return p.Parse(data)
 }
 
+func (p *Parser) ParseString(s string) (*Po, error) {
+	return p.Parse([]byte(s))
+}
+
 func (p *Parser) Parse(data []byte) (*Po, error) {
 	var ctx parseCtx
 	ctx.Context = context.Background()
