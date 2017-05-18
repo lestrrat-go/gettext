@@ -2,14 +2,14 @@ package gettext
 
 import (
 	"fmt"
-	"path"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 )
 
 func WithSource(s Source) Option {
 	return &option{
-		name: "source",
+		name:  "source",
 		value: s,
 	}
 }
@@ -36,28 +36,28 @@ func (l *Locale) findPO(dom string) ([]byte, error) {
 	var data []byte
 	var err error
 
-	filename := path.Join(l.path, l.lang, "LC_MESSAGES", dom+".po")
+	filename := filepath.Join(l.path, l.lang, "LC_MESSAGES", dom+".po")
 	data, err = l.src.ReadFile(filename)
 	if err == nil {
 		return data, nil
 	}
 
 	if len(l.lang) > 2 {
-		filename = path.Join(l.path, l.lang[:2], "LC_MESSAGES", dom+".po")
+		filename = filepath.Join(l.path, l.lang[:2], "LC_MESSAGES", dom+".po")
 		data, err = l.src.ReadFile(filename)
 		if err == nil {
 			return data, nil
 		}
 	}
 
-	filename = path.Join(l.path, l.lang, dom+".po")
+	filename = filepath.Join(l.path, l.lang, dom+".po")
 	data, err = l.src.ReadFile(filename)
 	if err == nil {
 		return data, nil
 	}
 
 	if len(l.lang) > 2 {
-		filename = path.Join(l.path, l.lang[:2], dom+".po")
+		filename = filepath.Join(l.path, l.lang[:2], dom+".po")
 		data, err = l.src.ReadFile(filename)
 		if err == nil {
 			return data, nil
