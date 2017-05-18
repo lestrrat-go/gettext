@@ -5,6 +5,19 @@ import (
 	"sync"
 )
 
+// Source is an abstraction over where to get the content of a
+// .po file. By default the FileSystemSource is used, but you
+// may plug this into asset loaders, databases, etc byt providing
+// a very thin wrapper around it.
+//
+// Because this whole scheme originated from file-based systems,
+// we still need to use file names as key
+type Source interface {
+	ReadFile(string) ([]byte, error)
+}
+
+type FileSystemSource struct{}
+
 // Locale wraps the entire i18n collection for a single language (locale)
 type Locale struct {
 	// Path to locale files.
@@ -15,6 +28,8 @@ type Locale struct {
 
 	// List of available domains for this locale.
 	domains map[string]*Po
+
+	src Source
 
 	// Sync Mutex
 	sync.RWMutex
