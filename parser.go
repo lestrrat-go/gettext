@@ -53,7 +53,7 @@ func (p *Parser) Parse(data []byte) (*Po, error) {
 	var ctx parseCtx
 	ctx.Context = context.Background()
 	ctx.strict = p.strict
-	ctx.po = NewPo()
+	ctx.po = newPo()
 	ctx.buf = data
 	ctx.curTranslation = newTranslation()
 	if err := ctx.Run(ctx); err != nil {
@@ -83,13 +83,6 @@ func (p *parseCtx) Line() string {
 
 	p.pos += i + 1
 	return string(p.buf[oldpos : oldpos+i])
-}
-
-func NewPo() *Po {
-	return &Po{
-		Translations: make(map[string]*translation),
-		Contexts:     make(map[string]map[string]*translation),
-	}
 }
 
 func (p *parseCtx) Run(ctx context.Context) error {
@@ -164,14 +157,14 @@ func (p *parseCtx) pop() {
 	p.curContext = ""
 
 	if curC == "" {
-		p.po.Translations[curT.id] = curT
+		p.po.translations[curT.id] = curT
 		return
 	}
 
-	if _, ok := p.po.Contexts[curC]; !ok {
-		p.po.Contexts[curC] = make(map[string]*translation)
+	if _, ok := p.po.contexts[curC]; !ok {
+		p.po.contexts[curC] = make(map[string]*translation)
 	}
-	p.po.Contexts[curC][curT.id] = curT
+	p.po.contexts[curC][curT.id] = curT
 }
 
 func (p *parseCtx) parseContext(l string) error {
@@ -290,16 +283,16 @@ func (p *parseCtx) parseHeaders() error {
 	}
 
 	// Get/save needed headers
-	p.po.Language = mimeHeader.Get("Language")
-	p.po.PluralForms = mimeHeader.Get("Plural-Forms")
+	p.po.language = mimeHeader.Get("Language")
+	p.po.pluralForms = mimeHeader.Get("Plural-Forms")
 
 	// Parse Plural-Forms formula
-	if p.po.PluralForms == "" {
+	if p.po.pluralForms == "" {
 		return nil
 	}
 
 	// Split plural form header value
-	pfs := strings.Split(p.po.PluralForms, ";")
+	pfs := strings.Split(p.po.pluralForms, ";")
 
 	// Parse values
 	for _, i := range pfs {

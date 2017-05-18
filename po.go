@@ -54,12 +54,16 @@ func (t *translation) getN(n int) (s string) {
 	return t.PluralID
 }
 
+func newPo() *Po {
+	return &Po{
+		translations: make(map[string]*translation),
+		contexts:     make(map[string]map[string]*translation),
+	}
+}
+
 // pluralForm calculates the plural form index corresponding to n.
 // Returns 0 on error
 func (po *Po) pluralForm(n int) int {
-	po.RLock()
-	defer po.RUnlock()
-
 	// Failsafe
 	if po.nplurals < 1 {
 		return 0
@@ -94,13 +98,9 @@ func (po *Po) pluralForm(n int) int {
 // Get retrieves the corresponding translation for the given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (po *Po) Get(str string, vars ...interface{}) string {
-	// Sync read
-	po.RLock()
-	defer po.RUnlock()
-
-	if po.Translations != nil {
-		if _, ok := po.Translations[str]; ok {
-			return fmt.Sprintf(po.Translations[str].get(), vars...)
+	if po.translations != nil {
+		if pot, ok := po.translations[str]; ok {
+			return fmt.Sprintf(pot.get(), vars...)
 		}
 	}
 
@@ -111,12 +111,8 @@ func (po *Po) Get(str string, vars ...interface{}) string {
 // GetN retrieves the (N)th plural form of translation for the given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (po *Po) GetN(str, plural string, n int, vars ...interface{}) string {
-	// Sync read
-	po.RLock()
-	defer po.RUnlock()
-
-	if po.Translations != nil {
-		if pot, ok := po.Translations[str]; ok {
+	if po.translations != nil {
+		if pot, ok := po.translations[str]; ok {
 			return fmt.Sprintf(pot.getN(po.pluralForm(n)), vars...)
 		}
 	}
@@ -128,15 +124,11 @@ func (po *Po) GetN(str, plural string, n int, vars ...interface{}) string {
 // GetC retrieves the corresponding translation for a given string in the given context.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (po *Po) GetC(str, ctx string, vars ...interface{}) string {
-	// Sync read
-	po.RLock()
-	defer po.RUnlock()
-
-	if po.Contexts != nil {
-		if _, ok := po.Contexts[ctx]; ok {
-			if po.Contexts[ctx] != nil {
-				if _, ok := po.Contexts[ctx][str]; ok {
-					return fmt.Sprintf(po.Contexts[ctx][str].get(), vars...)
+	if po.contexts != nil {
+		if m, ok := po.contexts[ctx]; ok {
+			if m != nil {
+				if pot, ok := m[str]; ok {
+					return fmt.Sprintf(pot.get(), vars...)
 				}
 			}
 		}
@@ -149,15 +141,11 @@ func (po *Po) GetC(str, ctx string, vars ...interface{}) string {
 // GetNC retrieves the (N)th plural form of translation for the given string in the given context.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (po *Po) GetNC(str, plural string, n int, ctx string, vars ...interface{}) string {
-	// Sync read
-	po.RLock()
-	defer po.RUnlock()
-
-	if po.Contexts != nil {
-		if _, ok := po.Contexts[ctx]; ok {
-			if po.Contexts[ctx] != nil {
-				if _, ok := po.Contexts[ctx][str]; ok {
-					return fmt.Sprintf(po.Contexts[ctx][str].getN(po.pluralForm(n)), vars...)
+	if po.contexts != nil {
+		if m, ok := po.contexts[ctx]; ok {
+			if m != nil {
+				if pot, ok := m[str]; ok {
+					return fmt.Sprintf(pot.getN(po.pluralForm(n)), vars...)
 				}
 			}
 		}
