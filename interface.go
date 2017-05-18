@@ -16,13 +16,12 @@ type Source interface {
 	ReadFile(string) ([]byte, error)
 }
 
-type FileSystemSource struct{}
+type FileSystemSource struct{
+	root string
+}
 
 // Locale wraps the entire i18n collection for a single language (locale)
 type Locale struct {
-	// Path to locale files.
-	path string
-
 	// Language for this Locale
 	lang string
 
