@@ -87,10 +87,7 @@ msgstr "More translation"
 	}
 
 	// Create Locale with full language code
-	l := NewLocale(tmpdir, "en_US")
-
-	// Force nil domain storage
-	l.domains = nil
+	l := NewLocale("en_US", WithSource(NewFileSystemSource(tmpdir)))
 
 	// Add domain
 	l.AddDomain("my_domain")
@@ -213,7 +210,7 @@ msgstr "More translation"
 	}
 
 	// Create Locale with full language code
-	l := NewLocale(tmpdir, "en_US")
+	l := NewLocale("en_US", WithSource(NewFileSystemSource(tmpdir)))
 
 	// Force nil domain storage
 	l.domains = nil
@@ -302,7 +299,7 @@ msgstr[2] "And this is the second plural form: %s"
 	}
 
 	// Create Locale with full language code
-	l := NewLocale(tmpdir, "es")
+	l := NewLocale("en_US", WithSource(NewFileSystemSource(tmpdir)))
 
 	// Init sync channels
 	ac := make(chan bool)

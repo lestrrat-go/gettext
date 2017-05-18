@@ -16,16 +16,20 @@ func WithSource(s Source) Option {
 
 // NewLocale creates and initializes a new Locale object for a given language.
 // It receives a path for the i18n files directory (p) and a language code to use (l).
-func NewLocale(p, l string, options ...Option) *Locale {
-	var src Source = FileSystemSource{}
+func NewLocale(l string, options ...Option) *Locale {
+	var src Source
 	for _, o := range options {
 		switch o.Name() {
 		case "source":
 			src = o.Value().(Source)
 		}
 	}
+
+	if src == nil {
+		src = NewFileSystemSource(".")
+	}
+
 	return &Locale{
-		path:    p,
 		lang:    l,
 		domains: make(map[string]*Po),
 		src:     src,
@@ -36,28 +40,28 @@ func (l *Locale) findPO(dom string) ([]byte, error) {
 	var data []byte
 	var err error
 
-	filename := filepath.Join(l.path, l.lang, "LC_MESSAGES", dom+".po")
+	filename := filepath.Join(l.lang, "LC_MESSAGES", dom+".po")
 	data, err = l.src.ReadFile(filename)
 	if err == nil {
 		return data, nil
 	}
 
 	if len(l.lang) > 2 {
-		filename = filepath.Join(l.path, l.lang[:2], "LC_MESSAGES", dom+".po")
+		filename = filepath.Join(l.lang[:2], "LC_MESSAGES", dom+".po")
 		data, err = l.src.ReadFile(filename)
 		if err == nil {
 			return data, nil
 		}
 	}
 
-	filename = filepath.Join(l.path, l.lang, dom+".po")
+	filename = filepath.Join(l.lang, dom+".po")
 	data, err = l.src.ReadFile(filename)
 	if err == nil {
 		return data, nil
 	}
 
 	if len(l.lang) > 2 {
-		filename = filepath.Join(l.path, l.lang[:2], dom+".po")
+		filename = filepath.Join(l.lang[:2], dom+".po")
 		data, err = l.src.ReadFile(filename)
 		if err == nil {
 			return data, nil

@@ -132,7 +132,7 @@ Use the fmt.Printf syntax (from Go's "fmt" package) to specify how to print the 
 import "github.com/lestrrat/go-gettext"
 
 func main() {
-    l := gettext.NewLocale("/path/to/locales/root/dir")
+    l := gettext.NewLocale(WithSource(NewFileSystemSource("/path/to/locales/root/dir")))
     l.AddDomain("domain-name")
     
     // Set variables
@@ -151,7 +151,7 @@ import "github.com/lestrrat/go-gettext"
 
 func main() {
     // Create Locale with library path and language code
-    l := gettext.NewLocale("/path/to/locales/root/dir", "es_UY")
+    l := gettext.NewLocale("es_UY", WithSource(NewFileSystemSource("/path/to/locales/root/dir")))
     
     // Load domain '/path/to/locales/root/dir/es_UY/default.po'
     l.AddDomain("default")
