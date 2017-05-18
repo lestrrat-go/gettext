@@ -22,7 +22,7 @@ func (o option) Value() interface{} {
 
 func WithStrictParsing(b bool) Option {
 	return &option{
-		name: "strict",
+		name:  "strict",
 		value: b,
 	}
 }

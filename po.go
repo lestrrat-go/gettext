@@ -2,7 +2,6 @@ package gettext
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/mattn/anko/vm"
 )

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"sync"
 )
 
 // NewLocale creates and initializes a new Locale object for a given language.

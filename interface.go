@@ -1,5 +1,10 @@
 package gettext
 
+import (
+	"context"
+	"sync"
+)
+
 // Locale wraps the entire i18n collection for a single language (locale)
 type Locale struct {
 	// Path to locale files.
@@ -59,7 +64,7 @@ type Option interface {
 }
 
 type option struct {
-	name string
+	name  string
 	value interface{}
 }
 
@@ -71,5 +76,3 @@ type translation struct {
 
 // one translation object may contain multiple translations
 type textlist []string
-
-
