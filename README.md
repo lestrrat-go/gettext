@@ -195,10 +195,10 @@ msgstr ""
 msgid "One with var: %s"
 msgstr "This one sets the var: %s"
 `
-    
-    // Create Po object
-    po := new(Po)
-    po.Parse(str)
+    po, err := NewParser().ParseString(str)
+    if err != nil {
+        ...
+    }
     
     println(po.Get("Translate this"))
 }
@@ -236,11 +236,11 @@ msgid_plural "Several with vars: %s"
 msgstr[0] "This one is the singular: %s"
 msgstr[1] "This one is the plural: %s"
 `
-    
-    // Create Po object
-    po := new(Po)
-    po.Parse(str)
-    
+    po, err := NewParser().ParseString(str)
+    if err != nil {
+        ...
+    }
+
     println(po.GetN("One with var: %s", "Several with vars: %s", 54, v))
     // "This one is the plural: Variable"
 }
