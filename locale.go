@@ -1,4 +1,4 @@
-package gotext
+package gettext
 
 import (
 	"fmt"
@@ -14,11 +14,11 @@ multiple languages at the same time by working with this object.
 
 Example:
 
-    import "github.com/leonelquinteros/gotext"
+    import "github.com/leonelquinteros/gettext"
 
     func main() {
         // Create Locale with library path and language code
-        l := gotext.NewLocale("/path/to/i18n/dir", "en_US")
+        l := gettext.NewLocale("/path/to/i18n/dir", "en_US")
 
         // Load domain '/path/to/i18n/dir/en_US/LC_MESSAGES/default.po'
         l.AddDomain("default")
@@ -86,10 +86,11 @@ func (l *Locale) findPO(dom string) string {
 // AddDomain creates a new domain for a given locale object and initializes the Po object.
 // If the domain exists, it gets reloaded.
 func (l *Locale) AddDomain(dom string) {
-	po := new(Po)
-
 	// Parse file.
-	po.ParseFile(l.findPO(dom))
+	p := NewParser()
+
+	// XXXX Aaaaargh, check errors!
+	po, _ := p.ParseFile(l.findPO(dom))
 
 	// Save new domain
 	l.Lock()

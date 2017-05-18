@@ -1,4 +1,4 @@
-package gotext
+package gettext
 
 import (
 	"os"

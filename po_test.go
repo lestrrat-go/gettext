@@ -1,9 +1,11 @@
-package gotext
+package gettext
 
 import (
 	"os"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPo(t *testing.T) {
@@ -76,14 +78,21 @@ msgstr "More translation"
 		t.Fatalf("Can't write to test file: %s", err.Error())
 	}
 
-	// Create po object
-	po := new(Po)
+	p := NewParser()
 
 	// Try to parse a directory
-	po.ParseFile(path.Clean(os.TempDir()))
+	po, err := p.ParseFile(path.Clean(os.TempDir()))
+	if err == nil {
+		t.Errorf("failed to parse")
+		return
+	}
 
 	// Parse file
-	po.ParseFile(filename)
+	po, err = p.ParseFile(filename)
+	if err != nil {
+		t.Errorf("failed to parse(2)")
+		return
+	}
 
 	// Test translations
 	tr := po.Get("My text")
@@ -121,8 +130,22 @@ msgstr "More translation"
 	}
 
 	// Test syntax error parsed translations
+	// XXX This test case seems wrong. If the entry has invalid syntax,
+	// it should NOT be producing an empty string. The only way an empty
+	// string can be returned here is when an empty string is set to the
+	// element on purpose, which happens ONLY if you ignore the error
+	// value returned by strings.Unquote(`msgstr[0] "Badly formatted string'`).
+	// But that's just not right. If you couldn't parse it, it should not
+	// even be registered.
+	/*
 	tr = po.Get("This one has invalid syntax translations")
 	if tr != "" {
+		t.Errorf("Expected '' but got '%s'", tr)
+	}
+	*/
+	// here's my take on the above test case
+	tr = po.Get("This one has invalid syntax translations")
+	if tr != "This one has invalid syntax translations" {
 		t.Errorf("Expected '' but got '%s'", tr)
 	}
 
@@ -169,11 +192,8 @@ msgid "Example"
 msgstr "Translated example"
     `
 
-	// Create po object
-	po := new(Po)
-
 	// Parse
-	po.Parse(str)
+	po, _ := NewParser().Parse([]byte(str))
 
 	// Check headers expected
 	if po.Language != "en" {
@@ -200,11 +220,8 @@ msgstr[2] "Plural form 2"
 msgstr[3] "Plural form 3"
     `
 
-	// Create po object
-	po := new(Po)
-
 	// Parse
-	po.Parse(str)
+	po, _ := NewParser().Parse([]byte(str))
 
 	// Check plural form
 	n := po.pluralForm(0)
@@ -243,11 +260,8 @@ msgstr[2] "Plural form 2"
 msgstr[3] "Plural form 3"
     `
 
-	// Create po object
-	po := new(Po)
-
 	// Parse
-	po.Parse(str)
+	po, _ := NewParser().Parse([]byte(str))
 
 	// Check plural form
 	n := po.pluralForm(0)
@@ -282,11 +296,8 @@ msgstr[2] "Plural form 2"
 msgstr[3] "Plural form 3"
     `
 
-	// Create po object
-	po := new(Po)
-
 	// Parse
-	po.Parse(str)
+	po, _ := NewParser().Parse([]byte(str))
 
 	// Check plural form
 	n := po.pluralForm(0)
@@ -330,11 +341,8 @@ msgstr[2] "Plural form 2"
 msgstr[3] "Plural form 3"
     `
 
-	// Create po object
-	po := new(Po)
-
 	// Parse
-	po.Parse(str)
+	po, _ := NewParser().Parse([]byte(str))
 
 	// Check plural form
 	n := po.pluralForm(1)
@@ -378,47 +386,19 @@ func TestTranslationObject(t *testing.T) {
 	}
 }
 
-func TestPoRace(t *testing.T) {
-	// Set PO content
-	str := `# Some comment
-msgid "My text"
-msgstr "Translated text"
-
-# More comments
-msgid "Another string"
-msgstr ""
-
-msgid "One with var: %s"
-msgid_plural "Several with vars: %s"
-msgstr[0] "This one is the singular: %s"
-msgstr[1] "This one is the plural: %s"
-msgstr[2] "And this is the second plural form: %s"
-
+func TestBadPo(t *testing.T) {
+	str := `
+msgid "This one has invalid syntax translations"
+msgid_plural "Plural index"
+msgstr[abc] "Wrong index"
+msgstr[1 "Forgot to close brackets"
+msgstr[0] "Badly formatted string'
     `
 
-	// Create Po object
-	po := new(Po)
-
-	// Create sync channels
-	pc := make(chan bool)
-	rc := make(chan bool)
-
-	// Parse po content in a goroutine
-	go func(po *Po, done chan bool) {
-		po.Parse(str)
-		done <- true
-	}(po, pc)
-
-	// Read some translation on a goroutine
-	go func(po *Po, done chan bool) {
-		po.Get("My text")
-		done <- true
-	}(po, rc)
-
-	// Read something at top level
-	po.Get("My text")
-
-	// Wait for goroutines to finish
-	<-pc
-	<-rc
+	p := NewParser(WithStrictParsing(true))
+	po, err := p.Parse([]byte(str))
+	if !assert.Error(t, err, `p.Parse should NOT suceeed (strict == true)`) {
+		return
+	}
+	_ = po
 }
