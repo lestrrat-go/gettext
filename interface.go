@@ -16,6 +16,8 @@ type Source interface {
 	ReadFile(string) ([]byte, error)
 }
 
+type SourceFunc func(string) ([]byte, error)
+
 type FileSystemSource struct{
 	root string
 }
