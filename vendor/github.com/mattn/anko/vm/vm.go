@@ -309,35 +309,66 @@ func RunSingleStmt(stmt ast.Stmt, env *Env) (reflect.Value, error) {
 		if val.Kind() == reflect.Interface {
 			val = val.Elem()
 		}
-		if val.Kind() != reflect.Array && val.Kind() != reflect.Slice {
-			return NilValue, NewStringError(stmt, "Invalid operation for non-array value")
-		}
-		newenv := env.NewEnv()
-		defer newenv.Destroy()
+		if val.Kind() == reflect.Array || val.Kind() == reflect.Slice {
+			newenv := env.NewEnv()
+			defer newenv.Destroy()
 
-		for i := 0; i < val.Len(); i++ {
-			iv := val.Index(i)
-			if val.Index(i).Kind() == reflect.Interface || val.Index(i).Kind() == reflect.Ptr {
-				iv = iv.Elem()
+			for i := 0; i < val.Len(); i++ {
+				iv := val.Index(i)
+				if iv.Kind() == reflect.Interface || iv.Kind() == reflect.Ptr {
+					iv = iv.Elem()
+				}
+				newenv.Define(stmt.Var, iv)
+				rv, err := Run(stmt.Stmts, newenv)
+				if err != nil {
+					if err == BreakError {
+						err = nil
+						break
+					}
+					if err == ContinueError {
+						err = nil
+						continue
+					}
+					if err == ReturnError {
+						return rv, err
+					}
+					return rv, NewError(stmt, err)
+				}
 			}
-			newenv.Define(stmt.Var, iv)
-			rv, err := Run(stmt.Stmts, newenv)
-			if err != nil {
-				if err == BreakError {
-					err = nil
+			return NilValue, nil
+		} else if val.Kind() == reflect.Chan {
+			newenv := env.NewEnv()
+			defer newenv.Destroy()
+
+			for {
+				iv, ok := val.Recv()
+				if !ok {
 					break
 				}
-				if err == ContinueError {
-					err = nil
-					continue
+				if iv.Kind() == reflect.Interface || iv.Kind() == reflect.Ptr {
+					iv = iv.Elem()
 				}
-				if err == ReturnError {
-					return rv, err
+				newenv.Define(stmt.Var, iv)
+				rv, err := Run(stmt.Stmts, newenv)
+				if err != nil {
+					if err == BreakError {
+						err = nil
+						break
+					}
+					if err == ContinueError {
+						err = nil
+						continue
+					}
+					if err == ReturnError {
+						return rv, err
+					}
+					return rv, NewError(stmt, err)
 				}
-				return rv, NewError(stmt, err)
 			}
+			return NilValue, nil
+		} else {
+			return NilValue, NewStringError(stmt, "Invalid operation for non-array value")
 		}
-		return NilValue, nil
 	case *ast.CForStmt:
 		newenv := env.NewEnv()
 		defer newenv.Destroy()
@@ -810,7 +841,7 @@ func invokeExpr(expr ast.Expr, env *Env) (reflect.Value, error) {
 		if v.Kind() != reflect.Ptr {
 			return NilValue, NewStringError(expr, "Cannot deference for the value")
 		}
-		return v.Addr(), nil
+		return v.Elem(), nil
 	case *ast.AddrExpr:
 		v := NilValue
 		var err error
@@ -1123,15 +1154,6 @@ func invokeExpr(expr ast.Expr, env *Env) (reflect.Value, error) {
 			}
 		}
 		rvs := reflect.ValueOf(vs)
-		if len(e.Lhss) > 1 && rvs.Len() == 1 {
-			item := rvs.Index(0)
-			if item.Kind() == reflect.Interface {
-				item = item.Elem()
-			}
-			if item.Kind() == reflect.Slice {
-				rvs = item
-			}
-		}
 		for i, lhs := range e.Lhss {
 			if i >= rvs.Len() {
 				break
@@ -1145,13 +1167,13 @@ func invokeExpr(expr ast.Expr, env *Env) (reflect.Value, error) {
 				return rvs, NewError(lhs, err)
 			}
 		}
-		if rvs.Len() == 1 {
-			return rvs.Index(0), nil
-		}
 		return rvs, nil
-	//case *ast.NewExpr:
-	//	println("NEW")
-	//	return NilValue, nil
+	case *ast.NewExpr:
+		rt, err := env.Type(e.Type)
+		if err != nil {
+			return NilValue, NewError(expr, err)
+		}
+		return reflect.New(rt), nil
 	case *ast.BinOpExpr:
 		lhsV := NilValue
 		rhsV := NilValue
@@ -1307,7 +1329,11 @@ func invokeExpr(expr ast.Expr, env *Env) (reflect.Value, error) {
 									}()
 									return []reflect.Value{}
 								}
-								return rfunc.Call(args)[:it.NumOut()]
+								var rets []reflect.Value
+								for _, v := range rfunc.Call(args)[:it.NumOut()] {
+									rets = append(rets, v.Interface().(reflect.Value))
+								}
+								return rets
 							})
 						}
 					} else if !arg.IsValid() {
@@ -1409,6 +1435,15 @@ func invokeExpr(expr ast.Expr, env *Env) (reflect.Value, error) {
 			return rhsV, NewError(expr, err)
 		}
 		return rhsV, nil
+	case *ast.MakeExpr:
+		rt, err := env.Type(e.Type)
+		if err != nil {
+			return NilValue, NewError(expr, err)
+		}
+		if rt.Kind() == reflect.Map {
+			return reflect.MakeMap(reflect.MapOf(rt.Key(), rt.Elem())).Convert(rt), nil
+		}
+		return reflect.Zero(rt), nil
 	case *ast.MakeChanExpr:
 		typ, err := env.Type(e.Type)
 		if err != nil {
@@ -1493,7 +1528,10 @@ func invokeExpr(expr ast.Expr, env *Env) (reflect.Value, error) {
 				lhs.Send(rhs)
 				return NilValue, nil
 			} else if rhs.Kind() == reflect.Chan {
-				rv, _ := rhs.Recv()
+				rv, ok := rhs.Recv()
+				if !ok {
+					return NilValue, NewErrorf(expr, "Failed to send to channel")
+				}
 				return invokeLetExpr(e.Lhs, rv, env)
 			}
 		}
