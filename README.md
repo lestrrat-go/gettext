@@ -1,13 +1,10 @@
+# go-gettext
+
 [![GoDoc](https://godoc.org/github.com/lestrrat/go-gettext?status.svg)](https://godoc.org/github.com/lestrrat/go-gettext)
 [![Build Status](https://travis-ci.org/lestrrat/go-gettext.svg?branch=master)](https://travis-ci.org/lestrrat/go-gettext)
 [![Go Report Card](https://goreportcard.com/badge/github.com/lestrrat/go-gettext)](https://goreportcard.com/report/github.com/lestrrat/go-gettext)
 
-# Gotext
-
-[GNU gettext utilities](https://www.gnu.org/software/gettext) for Go. 
-
-Version: [v1.1.1](https://github.com/lestrrat/go-gettext/releases/tag/v1.1.1)
-
+[GNU gettext utilities](https://www.gnu.org/software/gettext) for Go, forked from https://github.com/leonelquinteros/gotext
 
 # Features
 
@@ -27,11 +24,6 @@ Version: [v1.1.1](https://github.com/lestrrat/go-gettext/releases/tag/v1.1.1)
 # License
 
 [MIT license](LICENSE)
-
-
-# Documentation
-
-Refer to the Godoc package documentation at (https://godoc.org/github.com/lestrrat/go-gettext)
 
 
 # Installation 

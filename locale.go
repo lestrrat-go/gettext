@@ -7,6 +7,10 @@ import (
 )
 
 // NewLocale creates and initializes a new Locale object for a given language.
+//
+// Possible options include:
+// * WithSource: specifies where to load the .po files from
+// * WithDefaultDomain: name of the default domain. "default", it not specified
 func NewLocale(l string, options ...Option) *Locale {
 	var src Source
 	var defaultDomain string
