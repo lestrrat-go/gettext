@@ -1,6 +1,6 @@
 package gettext
 
-import "github.com/mattn/anko/vm"
+import "github.com/mattn/kinako/vm"
 
 func (l textlist) Len() int {
 	return len(l)
@@ -64,15 +64,14 @@ func (po *Po) pluralForm(n int) int {
 	if po.nplurals < 1 {
 		return 0
 	}
-	if po.plural == "" {
+	if po.plural == nil {
 		return 0
 	}
 
-	// Init compiler
 	env := vm.NewEnv()
 	env.Define("n", n)
 
-	plural, err := env.Execute(po.plural)
+	plural, err := vm.Run(po.plural, env)
 	if err != nil {
 		return 0
 	}
