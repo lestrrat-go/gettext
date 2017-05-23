@@ -90,10 +90,13 @@ func (p *parseCtx) Line() string {
 }
 
 func (p *parseCtx) Run(ctx context.Context) error {
-	const msgid = `msgid`
-	const msgidPlural = `msgid_plural`
-	const msgstr = `msgstr`
-	const msgctxt = `msgctxt`
+	const (
+		msgid       = `msgid`
+		msgidPlural = `msgid_plural`
+		msgstr      = `msgstr`
+		msgctxt     = `msgctxt`
+	)
+
 	for p.Next() {
 		l := strings.TrimSpace(p.Line())
 

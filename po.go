@@ -1,10 +1,6 @@
 package gettext
 
-import (
-	"fmt"
-
-	"github.com/mattn/anko/vm"
-)
+import "github.com/mattn/anko/vm"
 
 func (l textlist) Len() int {
 	return len(l)
@@ -98,27 +94,31 @@ func (po *Po) pluralForm(n int) int {
 // Get retrieves the corresponding translation for the given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (po *Po) Get(str string, vars ...interface{}) string {
-	if po.translations != nil {
-		if pot, ok := po.translations[str]; ok {
-			return fmt.Sprintf(pot.get(), vars...)
-		}
+	if po.translations == nil {
+		return format(str, vars...)
 	}
 
-	// Return the same we received by default
-	return fmt.Sprintf(str, vars...)
+	pot, ok := po.translations[str]
+	if !ok {
+		return format(str, vars...)
+	}
+
+	return format(pot.get(), vars...)
 }
 
 // GetN retrieves the (N)th plural form of translation for the given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (po *Po) GetN(str, plural string, n int, vars ...interface{}) string {
-	if po.translations != nil {
-		if pot, ok := po.translations[str]; ok {
-			return fmt.Sprintf(pot.getN(po.pluralForm(n)), vars...)
-		}
+	if po.translations == nil {
+		return format(plural, vars...)
 	}
 
-	// Return the plural string we received by default
-	return fmt.Sprintf(plural, vars...)
+	pot, ok := po.translations[str]
+	if !ok {
+		return format(plural, vars...)
+	}
+
+	return format(pot.getN(po.pluralForm(n)), vars...)
 }
 
 // GetC retrieves the corresponding translation for a given string in the given context.
@@ -128,14 +128,14 @@ func (po *Po) GetC(str, ctx string, vars ...interface{}) string {
 		if m, ok := po.contexts[ctx]; ok {
 			if m != nil {
 				if pot, ok := m[str]; ok {
-					return fmt.Sprintf(pot.get(), vars...)
+					return format(pot.get(), vars...)
 				}
 			}
 		}
 	}
 
 	// Return the string we received by default
-	return fmt.Sprintf(str, vars...)
+	return format(str, vars...)
 }
 
 // GetNC retrieves the (N)th plural form of translation for the given string in the given context.
@@ -145,12 +145,12 @@ func (po *Po) GetNC(str, plural string, n int, ctx string, vars ...interface{}) 
 		if m, ok := po.contexts[ctx]; ok {
 			if m != nil {
 				if pot, ok := m[str]; ok {
-					return fmt.Sprintf(pot.getN(po.pluralForm(n)), vars...)
+					return format(pot.getN(po.pluralForm(n)), vars...)
 				}
 			}
 		}
 	}
 
 	// Return the plural string we received by default
-	return fmt.Sprintf(plural, vars...)
+	return format(plural, vars...)
 }

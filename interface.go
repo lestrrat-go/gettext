@@ -24,16 +24,11 @@ type FileSystemSource struct{
 
 // Locale wraps the entire i18n collection for a single language (locale)
 type Locale struct {
-	// Language for this Locale
-	lang string
-
-	// List of available domains for this locale.
-	domains map[string]*Po
-
+	lang string // Language for this Locale
+	defaultDomain string
+	domains map[string]*Po // List of available domains for this locale.
 	src Source
-
-	// Sync Mutex
-	sync.RWMutex
+	mu sync.RWMutex
 }
 
 // Po stores content required for translation, and does the grunt work of
