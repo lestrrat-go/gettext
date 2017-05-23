@@ -1,7 +1,6 @@
 package gettext
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -99,9 +98,9 @@ func (l *Locale) AddDomain(dom string) error {
 	return nil
 }
 
-// Get uses the default domain to return the corresponding translation of a 
+// Get uses the default domain to return the corresponding translation of a
 // given string.
-// Supports optional parameters (vars... interface{}) to be inserted on the 
+// Supports optional parameters (vars... interface{}) to be inserted on the
 // formatted string using the fmt.Printf syntax.
 func (l *Locale) Get(str string, vars ...interface{}) string {
 	return l.GetD(l.defaultDomain, str, vars...)
@@ -133,14 +132,14 @@ func (l *Locale) GetND(dom, str, plural string, n int, vars ...interface{}) stri
 	}
 
 	po, ok := l.domains[dom]
-	if !ok {
+	if !ok || po == nil {
 		return format(plural, vars...)
 	}
 
 	return po.GetN(str, plural, n, vars...)
 }
 
-// GetC uses the default domain to return the corresponding translation of 
+// GetC uses the default domain to return the corresponding translation of
 // the given string in the given context.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
 func (l *Locale) GetC(str, ctx string, vars ...interface{}) string {
@@ -167,14 +166,14 @@ func (l *Locale) GetNDC(dom, str, plural string, n int, ctx string, vars ...inte
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 
-	if l.domains != nil {
-		if _, ok := l.domains[dom]; ok {
-			if l.domains[dom] != nil {
-				return l.domains[dom].GetNC(str, plural, n, ctx, vars...)
-			}
-		}
+	if l.domains == nil {
+		return format(plural, vars)
 	}
 
-	// Return the same we received by default
-	return fmt.Sprintf(plural, vars...)
+	po, ok := l.domains[dom]
+	if !ok || po == nil {
+		return format(plural, vars)
+	}
+
+	return po.GetNC(str, plural, n, ctx, vars...)
 }
