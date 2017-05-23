@@ -4,6 +4,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"unicode"
 
 	"github.com/mattn/anko/ast"
 )
@@ -266,7 +267,10 @@ retry:
 				tok = int(ch)
 				lit = string(ch)
 			}
-		case '(', ')', ':', ';', '%', '?', '{', '}', ',', '[', ']', '^', '\n':
+		case '\n':
+			tok = int(ch)
+			lit = string(ch)
+		case '(', ')', ':', ';', '%', '?', '{', '}', ',', '[', ']', '^':
 			s.next()
 			if ch == '[' && s.peek() == ']' {
 				s.next()
@@ -287,6 +291,8 @@ retry:
 			}
 		default:
 			err = fmt.Errorf(`syntax error "%s"`, string(ch))
+			tok = int(ch)
+			lit = string(ch)
 			return
 		}
 		s.next()
@@ -296,7 +302,7 @@ retry:
 
 // isLetter returns true if the rune is a letter for identity.
 func isLetter(ch rune) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return unicode.IsLetter(ch) || ch == '_'
 }
 
 // isDigit returns true if the rune is a number.
@@ -519,6 +525,10 @@ func Parse(s *Scanner) ([]ast.Stmt, error) {
 		return nil, l.e
 	}
 	return l.stmts, l.e
+}
+
+func EnableErrorVerbose() {
+	yyErrorVerbose = true
 }
 
 // ParserSrc provides way to parse the code from source.

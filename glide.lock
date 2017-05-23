@@ -1,0 +1,24 @@
+hash: 6be7a20d8adeba92d1108a8bb17eb059b9f1064aaf03dae8b4098613595b25e3
+updated: 2017-05-23T10:06:39.333877258+09:00
+imports:
+- name: github.com/mattn/anko
+  version: a3969c63681391ec413427cae813d6d59d6031f1
+  subpackages:
+  - ast
+  - parser
+  - vm
+- name: github.com/pkg/errors
+  version: c605e284fe17294bda444b34710735b29d1a9d90
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: 4d4bfba8f1d1027c4fdbe371823030df51419987
+  subpackages:
+  - assert
