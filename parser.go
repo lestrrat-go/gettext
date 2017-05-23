@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mattn/kinako/parser"
 	"github.com/pkg/errors"
 )
 
@@ -286,7 +287,7 @@ func (p *parseCtx) parseHeaders() error {
 
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
-		return errors.Wrap(err, `po: failed to parse MIM header`)
+		return errors.Wrap(err, `po: failed to parse MIME header`)
 	}
 
 	// Get/save needed headers
@@ -313,7 +314,12 @@ func (p *parseCtx) parseHeaders() error {
 			p.po.nplurals, _ = strconv.Atoi(vs[1])
 
 		case "plural":
-			p.po.plural = vs[1]
+			// compile this now
+			stmts, err := parser.ParseSrc(vs[1])
+			if err != nil {
+				return errors.Wrap(err, `po: failed to parse plural form spec`)
+			}
+			p.po.plural = stmts
 		}
 	}
 	return nil

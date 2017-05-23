@@ -1,8 +1,8 @@
-hash: 6be7a20d8adeba92d1108a8bb17eb059b9f1064aaf03dae8b4098613595b25e3
-updated: 2017-05-23T10:06:39.333877258+09:00
+hash: 637f9e09e83c2d76c93fc764c8823f591dec98cba473a31285d2a7f6929988d7
+updated: 2017-05-23T18:34:00.023197271+09:00
 imports:
-- name: github.com/mattn/anko
-  version: a3969c63681391ec413427cae813d6d59d6031f1
+- name: github.com/mattn/kinako
+  version: fbc18625ec69b28ae03b4eea4c349f215840ee09
   subpackages:
   - ast
   - parser

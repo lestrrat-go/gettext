@@ -3,6 +3,8 @@ package gettext
 import (
 	"context"
 	"sync"
+
+	"github.com/mattn/kinako/ast"
 )
 
 // Source is an abstraction over where to get the content of a
@@ -18,17 +20,17 @@ type Source interface {
 
 type SourceFunc func(string) ([]byte, error)
 
-type FileSystemSource struct{
+type FileSystemSource struct {
 	root string
 }
 
 // Locale wraps the entire i18n collection for a single language (locale)
 type Locale struct {
-	lang string // Language for this Locale
+	lang          string // Language for this Locale
 	defaultDomain string
-	domains map[string]*Po // List of available domains for this locale.
-	src Source
-	mu sync.RWMutex
+	domains       map[string]*Po // List of available domains for this locale.
+	src           Source
+	mu            sync.RWMutex
 }
 
 // Po stores content required for translation, and does the grunt work of
@@ -40,7 +42,7 @@ type Po struct {
 	language     string // Language header
 	pluralForms  string // Plural-Forms header
 	nplurals     int    // Parsed Plural-Forms header values
-	plural       string
+	plural       []ast.Stmt
 	translations map[string]*translation
 	contexts     map[string]map[string]*translation
 }

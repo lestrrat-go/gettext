@@ -1,7 +1,9 @@
 package: github.com/lestrrat/go-gettext
 import:
-- package: github.com/mattn/anko
+- package: github.com/mattn/kinako
   subpackages:
+  - ast
+  - parser
   - vm
 - package: github.com/pkg/errors
 testImport:
