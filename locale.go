@@ -1,17 +1,56 @@
 package gettext
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/pkg/errors"
 )
+
+type NullLocale struct{}
+
+func (l NullLocale) AddDomain(_ string) error {
+	return nil
+}
+
+func (l NullLocale) Get(s string, args ...interface{}) string {
+	return fmt.Sprintf(s, args...)
+}
+
+func (l NullLocale) GetC(str string, _ string, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
+
+func (l NullLocale) GetD(_ string, str string, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
+
+func (l NullLocale) GetDC(_ string, str, _ string, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
+
+func (l NullLocale) GetN(str string, _ string, _ int, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
+
+func (l NullLocale) GetNC(str string, _ string, _ int, _ string, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
+
+func (l NullLocale) GetND(_ string, str string, _ string, _ int, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
+
+func (l NullLocale) GetNDC(_ string, str string, _ string, _ int, _ string, vars ...interface{}) string {
+	return l.Get(str, vars...)
+}
 
 // NewLocale creates and initializes a new Locale object for a given language.
 //
 // Possible options include:
 // * WithSource: specifies where to load the .po files from
 // * WithDefaultDomain: name of the default domain. "default", it not specified
-func NewLocale(l string, options ...Option) *Locale {
+func NewLocale(l string, options ...Option) Locale {
 	var src Source
 	var defaultDomain string
 	for _, o := range options {
@@ -31,7 +70,7 @@ func NewLocale(l string, options ...Option) *Locale {
 		defaultDomain = "default"
 	}
 
-	return &Locale{
+	return &locale{
 		defaultDomain: defaultDomain,
 		domains:       make(map[string]*Po),
 		lang:          l,
@@ -39,7 +78,7 @@ func NewLocale(l string, options ...Option) *Locale {
 	}
 }
 
-func (l *Locale) findPO(dom string) ([]byte, error) {
+func (l *locale) findPO(dom string) ([]byte, error) {
 	var data []byte
 	var err error
 
@@ -71,12 +110,12 @@ func (l *Locale) findPO(dom string) ([]byte, error) {
 		}
 	}
 
-	return nil, errors.Errorf(`locale: could not find file for domain %s`, dom)
+	return nil, errors.Errorf(`locale: could not find file for domain %s in language %s`, dom, l.lang)
 }
 
 // AddDomain creates a new domain for a given locale object and initializes the Po object.
 // If the domain exists, it gets reloaded.
-func (l *Locale) AddDomain(dom string) error {
+func (l *locale) AddDomain(dom string) error {
 	// Parse file.
 	p := NewParser()
 
@@ -106,7 +145,7 @@ func (l *Locale) AddDomain(dom string) error {
 // given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the
 // formatted string using the fmt.Printf syntax.
-func (l *Locale) Get(str string, vars ...interface{}) string {
+func (l *locale) Get(str string, vars ...interface{}) string {
 	return l.GetD(l.defaultDomain, str, vars...)
 }
 
@@ -114,19 +153,19 @@ func (l *Locale) Get(str string, vars ...interface{}) string {
 // the default domain.
 // Supports optional parameters (vars... interface{}) to be inserted on the
 // formatted string using the fmt.Printf syntax.
-func (l *Locale) GetN(str, plural string, n int, vars ...interface{}) string {
+func (l *locale) GetN(str, plural string, n int, vars ...interface{}) string {
 	return l.GetND(l.defaultDomain, str, plural, n, vars...)
 }
 
 // GetD returns the corresponding translation in the given domain for the given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
-func (l *Locale) GetD(dom, str string, vars ...interface{}) string {
+func (l *locale) GetD(dom, str string, vars ...interface{}) string {
 	return l.GetND(dom, str, str, 1, vars...)
 }
 
 // GetND retrieves the (N)th plural form of translation in the given domain for the given string.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
-func (l *Locale) GetND(dom, str, plural string, n int, vars ...interface{}) string {
+func (l *locale) GetND(dom, str, plural string, n int, vars ...interface{}) string {
 	// Sync read
 	l.mu.RLock()
 	defer l.mu.RUnlock()
@@ -146,26 +185,26 @@ func (l *Locale) GetND(dom, str, plural string, n int, vars ...interface{}) stri
 // GetC uses the default domain to return the corresponding translation of
 // the given string in the given context.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
-func (l *Locale) GetC(str, ctx string, vars ...interface{}) string {
+func (l *locale) GetC(str, ctx string, vars ...interface{}) string {
 	return l.GetDC(l.defaultDomain, str, ctx, vars...)
 }
 
 // GetNC retrieves the (N)th plural form of translation for the given string
 // in the given context in the default domain.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
-func (l *Locale) GetNC(str, plural string, n int, ctx string, vars ...interface{}) string {
+func (l *locale) GetNC(str, plural string, n int, ctx string, vars ...interface{}) string {
 	return l.GetNDC(l.defaultDomain, str, plural, n, ctx, vars...)
 }
 
 // GetDC returns the corresponding translation in the given domain for the given string in the given context.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
-func (l *Locale) GetDC(dom, str, ctx string, vars ...interface{}) string {
+func (l *locale) GetDC(dom, str, ctx string, vars ...interface{}) string {
 	return l.GetNDC(dom, str, str, 1, ctx, vars...)
 }
 
 // GetNDC retrieves the (N)th plural form of translation in the given domain for the given string in the given context.
 // Supports optional parameters (vars... interface{}) to be inserted on the formatted string using the fmt.Printf syntax.
-func (l *Locale) GetNDC(dom, str, plural string, n int, ctx string, vars ...interface{}) string {
+func (l *locale) GetNDC(dom, str, plural string, n int, ctx string, vars ...interface{}) string {
 	// Sync read
 	l.mu.RLock()
 	defer l.mu.RUnlock()
