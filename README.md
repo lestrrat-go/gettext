@@ -2,11 +2,18 @@
 
 [![GoDoc](https://godoc.org/github.com/lestrrat/go-gettext?status.svg)](https://godoc.org/github.com/lestrrat/go-gettext)
 [![Build Status](https://travis-ci.org/lestrrat/go-gettext.svg?branch=master)](https://travis-ci.org/lestrrat/go-gettext)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lestrrat/go-gettext)](https://goreportcard.com/report/github.com/lestrrat/go-gettext)
 
 [GNU gettext utilities](https://www.gnu.org/software/gettext) for Go, forked from https://github.com/leonelquinteros/gotext
 
 # Features
+
+## Features Specific To This Fork
+
+- Properly reports errors
+- gettext.LocaleSet wrapper to handle multiple languages dynamically
+
+
+## Features From Fork Source
 
 - Implements GNU gettext support in native Go.
 - Complete support for [PO files](https://www.gnu.org/software/gettext/manual/html_node/PO-Files.html) including:
@@ -15,8 +22,7 @@
   - Support for [pluralization rules](https://www.gnu.org/software/gettext/manual/html_node/Translating-plural-forms.html).
   - Support for [message contexts](https://www.gnu.org/software/gettext/manual/html_node/Contexts.html).
 - Thread-safe: This package is safe for concurrent use across multiple goroutines. 
-- It works with UTF-8 encoding as it's the default for Go language.
-- Unit tests available. See coverage: https://gocover.io/github.com/lestrrat/go-gettext
+- Woorks with UTF-8 encoding as it's the default for Go language.
 - Language codes are automatically simplified from the form `en_UK` to `en` if the first isn't available.
 - Ready to use inside Go templates.
 

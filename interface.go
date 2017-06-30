@@ -25,7 +25,19 @@ type FileSystemSource struct {
 }
 
 // Locale wraps the entire i18n collection for a single language (locale)
-type Locale struct {
+type Locale interface{
+	AddDomain(string) error
+	Get(string, ...interface{}) string
+	GetN(string, string, int, ...interface{}) string
+	GetD(string, string, ...interface{}) string
+	GetND(string, string, string, int, ...interface{}) string
+	GetC(string, string, ...interface{}) string
+	GetNC(string, string, int, string, ...interface{}) string
+	GetDC(string, string, string, ...interface{}) string
+	GetNDC(string, string, string, int, string, ...interface{}) string
+}
+
+type locale struct {
 	lang          string // Language for this Locale
 	defaultDomain string
 	domains       map[string]*Po // List of available domains for this locale.

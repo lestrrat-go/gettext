@@ -7,6 +7,12 @@ import (
 	"testing"
 )
 
+func TestInterface(t *testing.T) {
+	var l Locale
+	l = NullLocale{}
+	_ = l
+}
+
 func TestLocale(t *testing.T) {
 	// Set PO content
 	str := `
@@ -213,7 +219,7 @@ msgstr "More translation"
 	l := NewLocale("en_US", WithSource(NewFileSystemSource(tmpdir)))
 
 	// Force nil domain storage
-	l.domains = nil
+	l.(*locale).domains = nil // XXX FIXME
 
 	// Add domain
 	l.AddDomain("my_domain")
@@ -306,13 +312,13 @@ msgstr[2] "And this is the second plural form: %s"
 	rc := make(chan bool)
 
 	// Add domain in goroutine
-	go func(l *Locale, done chan bool) {
+	go func(l Locale, done chan bool) {
 		l.AddDomain("race")
 		done <- true
 	}(l, ac)
 
 	// Get translations in goroutine
-	go func(l *Locale, done chan bool) {
+	go func(l Locale, done chan bool) {
 		l.GetD("race", "My text")
 		done <- true
 	}(l, rc)
