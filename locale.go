@@ -82,28 +82,20 @@ func (l *locale) findPO(dom string) ([]byte, error) {
 	var data []byte
 	var err error
 
-	filename := filepath.Join(l.lang, "LC_MESSAGES", dom+".po")
-	data, err = l.src.ReadFile(filename)
-	if err == nil {
-		return data, nil
-	}
-
+	var filenames []string
 	if len(l.lang) > 2 {
-		filename = filepath.Join(l.lang[:2], "LC_MESSAGES", dom+".po")
-		data, err = l.src.ReadFile(filename)
-		if err == nil {
-			return data, nil
-		}
+		filenames = make([]string, 0, 4)
+		filenames = append(filenames, filepath.Join(l.lang, "LC_MESSAGES", dom+".po"))
+		filenames = append(filenames, filepath.Join(l.lang[:2], "LC_MESSAGES", dom+".po"))
+		filenames = append(filenames, filepath.Join(l.lang, dom+".po"))
+		filenames = append(filenames, filepath.Join(l.lang[:2], dom+".po"))
+	} else {
+		filenames = make([]string, 0, 2)
+		filenames = append(filenames, filepath.Join(l.lang, "LC_MESSAGES", dom+".po"))
+		filenames = append(filenames, filepath.Join(l.lang, dom+".po"))
 	}
 
-	filename = filepath.Join(l.lang, dom+".po")
-	data, err = l.src.ReadFile(filename)
-	if err == nil {
-		return data, nil
-	}
-
-	if len(l.lang) > 2 {
-		filename = filepath.Join(l.lang[:2], dom+".po")
+	for _, filename := range filenames {
 		data, err = l.src.ReadFile(filename)
 		if err == nil {
 			return data, nil
