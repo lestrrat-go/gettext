@@ -1,4 +1,4 @@
-# go-gettext
+# gettext
 
 [![GoDoc](https://godoc.org/github.com/lestrrat-go/gettext?status.svg)](https://godoc.org/github.com/lestrrat-go/gettext)
 [![Build Status](https://travis-ci.org/lestrrat-go/gettext.svg?branch=master)](https://travis-ci.org/lestrrat-go/gettext)
