@@ -1,4 +1,4 @@
-package: github.com/lestrrat/go-gettext
+package: github.com/lestrrat-go/gettext
 import:
 - package: github.com/mattn/kinako
   subpackages:
